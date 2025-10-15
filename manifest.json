@@ -1,0 +1,40 @@
+{
+  "name": "Gerenciador de Objetos Customizados",
+  "author": {
+    "name": "Fundacred",
+    "email": "support@fundacred.com"
+  },
+  "defaultLocale": "pt-br",
+  "private": false,
+  "location": {
+    "support": {
+      "nav_bar": {
+        "url": "assets/iframe.html",
+        "size": {
+          "width": "100%",
+          "height": "600px"
+        }
+      }
+    }
+  },
+  "version": "1.0.0",
+  "frameworkVersion": "2.0",
+  "parameters": [
+    {
+      "name": "custom_objects_to_display",
+      "type": "multiline",
+      "secure": false,
+      "required": true,
+      "default": "",
+      "helpText": "Insira os nomes (API names) dos Objetos Customizados que deseja exibir, separados por vírgula ou linha. Exemplo: object_a, object_b, object_c"
+    },
+    {
+      "name": "records_per_page",
+      "type": "number",
+      "secure": false,
+      "required": false,
+      "default": 50,
+      "helpText": "Número de registros por página (máximo 100)"
+    }
+  ]
+}

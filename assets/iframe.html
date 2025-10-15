@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gerenciador de Objetos Customizados</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <!-- Container Principal -->
+  <div id="app" class="app-container">
+    
+    <!-- Cabeçalho -->
+    <header class="app-header">
+      <h2>Gerenciador de Objetos Customizados</h2>
+    </header>
+
+    <!-- Área de Loading Inicial -->
+    <div id="loading" class="loading-container">
+      <div class="spinner"></div>
+      <p>Carregando objetos customizados...</p>
+    </div>
+
+    <!-- Área de Erro -->
+    <div id="error" class="error-container" style="display: none;">
+      <div class="error-icon">⚠️</div>
+      <p id="error-message"></p>
+      <button id="retry-button" class="btn btn-primary">Tentar Novamente</button>
+    </div>
+
+    <!-- Container de Conteúdo Principal -->
+    <div id="main-content" style="display: none;">
+      
+      <!-- Navegação por Abas -->
+      <div class="tabs-container">
+        <div id="tabs" class="tabs"></div>
+      </div>
+
+      <!-- Área de Conteúdo da Aba Ativa -->
+      <div class="tab-content">
+        
+        <!-- Barra de Ferramentas -->
+        <div class="toolbar">
+          <div class="toolbar-left">
+            <button id="create-button" class="btn btn-primary">
+              <span class="icon">➕</span> Novo Registro
+            </button>
+            <button id="refresh-button" class="btn btn-secondary">
+              <span class="icon">🔄</span> Atualizar
+            </button>
+          </div>
+          <div class="search-box">
+            <input type="text" id="search-input" placeholder="Pesquisar registros..." disabled>
+            <button id="clear-search" class="clear-search-btn" style="display: none;" title="Limpar pesquisa">✕</button>
+          </div>
+        </div>
+
+        <!-- Container da Tabela -->
+        <div id="table-container" class="table-container">
+          <table id="data-table" class="data-table">
+            <thead id="table-head">
+              <!-- Cabeçalhos gerados dinamicamente -->
+            </thead>
+            <tbody id="table-body">
+              <!-- Registros gerados dinamicamente -->
+            </tbody>
+          </table>
+          
+          <!-- Mensagem quando não há dados -->
+          <div id="no-data" class="no-data" style="display: none;">
+            <p>📋 Nenhum registro encontrado.</p>
+          </div>
+        </div>
+
+        <!-- Controles de Paginação -->
+        <div id="pagination" class="pagination-container">
+          <button id="prev-page" class="btn btn-secondary" disabled>← Anterior</button>
+          <span id="page-info" class="page-info">Página 1</span>
+          <button id="next-page" class="btn btn-secondary" disabled>Próximo →</button>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Toast de Notificação -->
+    <div id="toast" class="toast"></div>
+
+  </div>
+
+  <!-- Modal para Criar Novo Registro -->
+  <div id="create-modal" class="modal" style="display: none;">
+    <div class="modal-overlay" id="modal-overlay"></div>
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 id="modal-title">Criar Novo Registro</h3>
+        <button id="close-modal" class="modal-close">✕</button>
+      </div>
+      <div class="modal-body">
+        <form id="create-form">
+          <div class="form-group">
+            <label for="record-name">Nome do Registro *</label>
+            <input type="text" id="record-name" class="form-input" placeholder="Digite o nome do registro" required>
+            <small class="form-help">Este será o identificador principal do registro</small>
+          </div>
+          <div id="dynamic-fields">
+            <!-- Campos dinâmicos serão inseridos aqui -->
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button id="cancel-create" class="btn btn-secondary">Cancelar</button>
+        <button id="save-create" class="btn btn-primary">
+          <span class="icon">💾</span> Criar Registro
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <!-- SDK do Zendesk App Framework - DEVE ser carregado primeiro -->
+  <script src="https://static.zdassets.com/zendesk_app_framework_sdk/2.0/zaf_sdk.min.js"></script>
+  <!-- Script da aplicação -->
+  <script src="app.js"></script>
+</body>
+</html>

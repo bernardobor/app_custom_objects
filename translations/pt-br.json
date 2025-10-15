@@ -1,0 +1,19 @@
+{
+  "app": {
+    "name": "Gerenciador de Objetos Customizados",
+    "short_description": "Gerencie e edite objetos customizados diretamente do Zendesk",
+    "long_description": "Uma aplicação moderna e intuitiva para gerenciar e editar registros de Objetos Customizados (Custom Objects) diretamente da barra de navegação lateral do Zendesk Support.",
+    "installation_instructions": "Por favor, configure os nomes (API names) dos Objetos Customizados que deseja exibir nas configurações da aplicação."
+  },
+  "parameters": {
+    "custom_objects_to_display": {
+      "label": "Objetos Customizados para Exibir",
+      "helpText": "Insira os nomes (API names) dos Objetos Customizados que deseja exibir, separados por vírgula ou linha. Exemplo: object_a, object_b, object_c"
+    },
+    "records_per_page": {
+      "label": "Registros por Página",
+      "helpText": "Número de registros por página (máximo 100)"
+    }
+  }
+}
+

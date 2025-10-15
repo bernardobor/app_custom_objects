@@ -1,0 +1,18 @@
+{
+  "app": {
+    "name": "Custom Objects Manager",
+    "short_description": "Manage and edit custom objects directly from Zendesk",
+    "long_description": "A modern and intuitive application to manage and edit Custom Objects records directly from the Zendesk Support navigation bar.",
+    "installation_instructions": "Please configure the API names of the Custom Objects you want to display in the app settings."
+  },
+  "parameters": {
+    "custom_objects_to_display": {
+      "label": "Custom Objects to Display",
+      "helpText": "Enter the API names of the Custom Objects you want to display, separated by comma or line. Example: object_a, object_b, object_c"
+    },
+    "records_per_page": {
+      "label": "Records per Page",
+      "helpText": "Number of records per page (maximum 100)"
+    }
+  }
+}
