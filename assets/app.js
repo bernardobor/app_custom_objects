@@ -57,8 +57,11 @@ document.addEventListener('DOMContentLoaded', async () => {
     // O ZAF Client é fornecido pelo Zendesk e permite interagir com a API
     appState.client = ZAFClient.init();
     
-    // Aguarda a inicialização completa do cliente
-    await appState.client.invoke('resize', { width: '100%', height: '600px' });
+    // Aguarda um momento para garantir que o DOM está pronto
+    await new Promise(resolve => setTimeout(resolve, 100));
+    
+    // Redimensiona o iframe de forma segura
+    await safeResize({ width: '100%', height: '600px' });
     
     // Busca as configurações do manifest.json
     const settings = await appState.client.metadata();
@@ -97,7 +100,11 @@ document.addEventListener('DOMContentLoaded', async () => {
     
     // Adiciona listener para redimensionamento da janela
     window.addEventListener('resize', debounce(() => {
-      checkHorizontalScroll();
+      try {
+        checkHorizontalScroll();
+      } catch (error) {
+        console.warn('⚠️ Erro ao verificar scroll durante resize:', error);
+      }
     }, 250));
     
     console.log('✅ Aplicação inicializada com sucesso!');
@@ -224,21 +231,27 @@ function renderTable() {
   // Atualiza os controles de paginação
   updatePagination();
   
-  // Verifica se há scroll horizontal
-  checkHorizontalScroll();
+  // Verifica se há scroll horizontal (com proteção)
+  try {
+    checkHorizontalScroll();
+  } catch (error) {
+    console.warn('⚠️ Erro ao verificar scroll horizontal:', error);
+  }
   
   // Mostra mensagem se não houver dados
   const noDataElement = document.getElementById('no-data');
-  if (records.length === 0) {
-    noDataElement.style.display = 'block';
-    // Mensagem personalizada se houver pesquisa ativa
-    if (appState.searchTerm) {
-      noDataElement.innerHTML = '<p>🔍 Nenhum registro encontrado para a pesquisa.</p>';
+  if (noDataElement) {
+    if (records.length === 0) {
+      noDataElement.style.display = 'block';
+      // Mensagem personalizada se houver pesquisa ativa
+      if (appState.searchTerm) {
+        noDataElement.innerHTML = '<p>🔍 Nenhum registro encontrado para a pesquisa.</p>';
+      } else {
+        noDataElement.innerHTML = '<p>📋 Nenhum registro encontrado.</p>';
+      }
     } else {
-      noDataElement.innerHTML = '<p>📋 Nenhum registro encontrado.</p>';
+      noDataElement.style.display = 'none';
     }
-  } else {
-    noDataElement.style.display = 'none';
   }
 }
 
@@ -248,6 +261,13 @@ function renderTable() {
  */
 function renderTableHeaders(schema) {
   const thead = document.getElementById('table-head');
+  
+  // Proteção: verifica se o elemento existe
+  if (!thead) {
+    console.error('❌ Elemento table-head não encontrado no DOM');
+    return;
+  }
+  
   thead.innerHTML = '';
   
   const headerRow = document.createElement('tr');
@@ -283,6 +303,13 @@ function renderTableHeaders(schema) {
  */
 function renderTableBody(schema, records) {
   const tbody = document.getElementById('table-body');
+  
+  // Proteção: verifica se o elemento existe
+  if (!tbody) {
+    console.error('❌ Elemento table-body não encontrado no DOM');
+    return;
+  }
+  
   tbody.innerHTML = '';
   
   // Para cada registro, cria uma linha
@@ -392,6 +419,12 @@ function updatePagination() {
   const prevButton = document.getElementById('prev-page');
   const nextButton = document.getElementById('next-page');
   
+  // Proteção: verifica se os elementos existem
+  if (!pageInfo || !prevButton || !nextButton) {
+    console.warn('⚠️ Elementos de paginação não encontrados no DOM');
+    return;
+  }
+  
   // Atualiza o texto da página
   pageInfo.textContent = `Página ${appState.currentPage}`;
   
@@ -407,7 +440,11 @@ function checkHorizontalScroll() {
   const tableContainer = document.getElementById('table-container');
   const table = document.getElementById('data-table');
   
-  if (!tableContainer || !table) return;
+  // Proteção: verifica se os elementos existem antes de acessar propriedades
+  if (!tableContainer || !table) {
+    console.warn('⚠️ Elementos de tabela não encontrados para verificar scroll');
+    return;
+  }
   
   // Verifica se o conteúdo da tabela é maior que o container
   const hasScroll = table.scrollWidth > tableContainer.clientWidth;
@@ -421,6 +458,9 @@ function checkHorizontalScroll() {
   
   // Adiciona listener para remover o indicador quando rolar até o final
   tableContainer.addEventListener('scroll', () => {
+    // Verifica novamente se os elementos ainda existem
+    if (!tableContainer || !table) return;
+    
     const scrolledToEnd = tableContainer.scrollLeft + tableContainer.clientWidth >= table.scrollWidth - 5;
     
     if (scrolledToEnd) {
@@ -465,7 +505,7 @@ function setupEventListeners() {
   const clearSearchBtn = document.getElementById('clear-search');
   
   searchInput.disabled = false; // Habilita o campo de pesquisa
-  searchInput.addEventListener('input', debounce(handleSearch, 300));
+  searchInput.addEventListener('input', debounce(handleSearch, 800));
   
   // Mostra/esconde botão de limpar baseado no conteúdo
   searchInput.addEventListener('input', () => {
@@ -1664,6 +1704,29 @@ function showError(message) {
 // ============================================
 // UTILITÁRIOS E HELPERS
 // ============================================
+
+/**
+ * Redimensiona o iframe do app de forma segura
+ * Evita erros quando o DOM não está completamente pronto
+ * @param {Object} dimensions - Dimensões do iframe (width, height)
+ */
+async function safeResize(dimensions = { width: '100%', height: '600px' }) {
+  if (!appState.client) {
+    console.warn('⚠️ Cliente ZAF não inicializado para resize');
+    return;
+  }
+  
+  try {
+    // Aguarda um pouco para garantir que o DOM está estável
+    await new Promise(resolve => setTimeout(resolve, 50));
+    
+    // Tenta redimensionar
+    await appState.client.invoke('resize', dimensions);
+  } catch (error) {
+    console.warn('⚠️ Erro ao redimensionar iframe:', error);
+    // Não lança erro, apenas registra no console
+  }
+}
 
 /**
  * Debounce - Limita a frequência de execução de uma função
