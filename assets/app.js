@@ -80,11 +80,19 @@ document.addEventListener('DOMContentLoaded', async () => {
       appState.recordsPerPage = 100;
     }
     
-    // Renderiza as abas (uma para cada objeto customizado)
+    // Carrega os schemas de todos os objetos para ter os nomes corretos nas abas
+    await Promise.all(
+      appState.customObjects.map(objectName => loadObjectSchema(objectName))
+    );
+    
+    // Renderiza as abas com os nomes reais dos objetos
     renderTabs();
     
-    // Carrega os dados do primeiro objeto
-    await loadObjectData(0);
+    // Carrega os registros do primeiro objeto
+    await loadObjectRecords(appState.customObjects[0]);
+    
+    // Renderiza a tabela
+    renderTable();
     
     // Oculta o loading e mostra o conteúdo principal
     hideLoading();
@@ -150,7 +158,7 @@ function renderTabs() {
   appState.customObjects.forEach((objectName, index) => {
     const tab = document.createElement('button');
     tab.className = 'tab';
-    tab.textContent = formatObjectName(objectName); // Formata o nome para exibição
+    tab.textContent = getObjectDisplayName(objectName); // Usa o nome real do objeto
     tab.dataset.index = index; // Armazena o índice no atributo data
     
     // Marca a primeira aba como ativa
@@ -166,7 +174,24 @@ function renderTabs() {
 }
 
 /**
- * Formata o nome do objeto para exibição
+ * Obtém o nome de exibição do objeto customizado
+ * Usa o título real do schema quando disponível, ou formata a chave como fallback
+ * @param {string} objectName - Nome do objeto (API name/chave)
+ * @returns {string} Nome para exibição
+ */
+function getObjectDisplayName(objectName) {
+  // Se o schema já foi carregado, usa o título do objeto
+  const schema = appState.objectSchemas[objectName];
+  if (schema && schema.title) {
+    return schema.title;
+  }
+  
+  // Fallback: formata o nome da chave se o schema ainda não estiver carregado
+  return formatObjectName(objectName);
+}
+
+/**
+ * Formata o nome do objeto para exibição (fallback)
  * Exemplo: "customer_info" vira "Customer Info"
  * @param {string} objectName - Nome do objeto (API name)
  * @returns {string} Nome formatado

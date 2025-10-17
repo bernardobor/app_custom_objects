@@ -1,8 +1,8 @@
 {
-  "name": "Gerenciador de Objetos Customizados",
+  "name": "Calendário CSI",
   "author": {
     "name": "Fundacred",
-    "email": "support@fundacred.com"
+    "email": "bernardo.ramos@eteg.com.br"
   },
   "defaultLocale": "pt-br",
   "private": false,
@@ -37,7 +37,7 @@
       "type": "number",
       "secure": false,
       "required": false,
-      "default": 50,
+      "default": 100,
       "helpText": "Número de registros por página (máximo 100)"
     }
   ]
