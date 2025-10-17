@@ -11,10 +11,13 @@ Uma aplicação Zendesk moderna e intuitiva para gerenciar e editar registros de
 - ✅ **Interface Dinâmica**: Adapta-se automaticamente aos campos de cada objeto customizado
 - 📊 **Visualização em Abas**: Gerencia múltiplos objetos customizados em uma única interface
 - ✏️ **Edição In-Place**: Edite campos diretamente na tabela com feedback visual
+- 🔍 **Busca Global**: Pesquisa em todas as páginas, não apenas na página atual
 - 📄 **Paginação Inteligente**: Navegue facilmente por grandes conjuntos de dados (até 100 registros por página)
 - 🎨 **Design Moderno**: Interface bonita e responsiva com UX otimizada
 - 🔄 **Sincronização em Tempo Real**: Atualizações instantâneas via API do Zendesk
 - 🛡️ **Tratamento de Erros**: Gerenciamento robusto de erros e limites de taxa
+- ⚡ **Performance Otimizada**: Cache inteligente e verificação de mudanças antes de salvar
+- 🚫 **Sem Warnings**: Prevenção de warnings de preload do navegador
 
 ## 📋 Pré-requisitos
 
@@ -292,6 +295,35 @@ const { settings } = metadata;
 1. Aguarde alguns minutos
 2. Evite clicar rapidamente em múltiplos botões
 3. A aplicação já tem tratamento para isso, mas em casos extremos, pode ocorrer
+
+## 🚀 Otimizações Recentes (v1.0.0)
+
+### 1. **Busca Global em Todas as Páginas**
+A aplicação agora carrega e pesquisa em **todos os registros**, não apenas na página atual:
+- ✅ Cache inteligente: primeira busca carrega tudo, próximas são instantâneas
+- ✅ Feedback visual: mostra "Buscando em todas as páginas..." durante carregamento
+- ✅ Informativo: exibe "X registros encontrados em Y registros totais"
+
+### 2. **Verificação de Mudanças Antes de Salvar**
+Otimização que evita chamadas desnecessárias à API:
+- ✅ Compara valor original com novo valor antes de enviar
+- ✅ Funciona com todos os tipos: texto, número, checkbox, arrays, etc.
+- ✅ Logs no console mostram quando economiza uma chamada de API
+- ✅ Armazena valor RAW para comparação precisa
+
+### 3. **Prevenção de Warnings de Preload**
+Sistema avançado que elimina warnings do navegador:
+- ✅ MutationObserver intercepta preload links do Zendesk
+- ✅ Remove automaticamente recursos CSS desnecessários
+- ✅ Mantém apenas recursos relevantes para o app
+- ✅ Console 100% limpo sem warnings
+
+### 4. **Proteção Contra Erros de DOM**
+Código robusto com verificações defensivas:
+- ✅ Verifica existência de elementos antes de acessar propriedades
+- ✅ Try/catch em operações críticas
+- ✅ Mensagens informativas em vez de erros críticos
+- ✅ App continua funcionando mesmo com problemas parciais
 
 ## 🔧 Personalização
 

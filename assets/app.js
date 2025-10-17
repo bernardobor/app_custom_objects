@@ -46,8 +46,6 @@ const appState = {
  */
 document.addEventListener('DOMContentLoaded', async () => {
   try {
-    console.log('🚀 Iniciando aplicação Zendesk...');
-    
     // Verifica se o ZAFClient está disponível
     if (typeof ZAFClient === 'undefined') {
       throw new Error('ZAFClient não está disponível. Verifique se o SDK do Zendesk foi carregado corretamente.');
@@ -65,7 +63,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     
     // Busca as configurações do manifest.json
     const settings = await appState.client.metadata();
-    console.log('⚙️ Configurações carregadas:', settings);
     
     // Extrai a lista de objetos customizados da configuração
     await loadCustomObjectsList(settings);
@@ -82,8 +79,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (appState.recordsPerPage > 100) {
       appState.recordsPerPage = 100;
     }
-    
-    console.log(`📊 Exibindo ${appState.recordsPerPage} registros por página`);
     
     // Renderiza as abas (uma para cada objeto customizado)
     renderTabs();
@@ -107,8 +102,6 @@ document.addEventListener('DOMContentLoaded', async () => {
       }
     }, 250));
     
-    console.log('✅ Aplicação inicializada com sucesso!');
-    
   } catch (error) {
     console.error('❌ Erro ao inicializar aplicação:', error);
     showError(error.message);
@@ -128,16 +121,12 @@ async function loadCustomObjectsList(metadata) {
     // Pega o valor da configuração 'custom_objects_to_display'
     const objectsString = metadata.settings.custom_objects_to_display || '';
     
-    console.log('📋 String de objetos recebida:', objectsString);
-    
     // Divide a string por vírgula ou quebra de linha e remove espaços
     // Exemplo: "object_a, object_b" vira ["object_a", "object_b"]
     appState.customObjects = objectsString
       .split(/[,\n]/)              // Divide por vírgula ou quebra de linha
       .map(obj => obj.trim())      // Remove espaços em branco
       .filter(obj => obj.length > 0); // Remove strings vazias
-    
-    console.log('📦 Objetos customizados a serem exibidos:', appState.customObjects);
     
   } catch (error) {
     console.error('❌ Erro ao carregar lista de objetos:', error);
@@ -201,13 +190,6 @@ function renderTable() {
   const records = appState.searchTerm ? 
     (appState.filteredRecords[activeObject] || []) : 
     allRecords;
-  
-  console.log(`📊 Renderizando tabela para ${activeObject}`);
-  console.log(`   Schema:`, schema);
-  console.log(`   Registros totais:`, allRecords.length);
-  console.log(`   Registros exibidos:`, records.length);
-  console.log(`   Termo de pesquisa:`, appState.searchTerm || 'nenhum');
-  console.log(`   Campos no schema:`, schema?.custom_object_fields?.length || 0);
   
   // Verifica se o schema foi carregado corretamente
   if (!schema) {
@@ -281,9 +263,7 @@ function renderTableHeaders(schema) {
   
   // Para cada campo do schema, cria um cabeçalho
   if (schema && schema.custom_object_fields) {
-    console.log(`   Criando ${schema.custom_object_fields.length} cabeçalhos de colunas`);
-    schema.custom_object_fields.forEach((field, index) => {
-      console.log(`      Campo ${index + 1}: ${field.key} (${field.type}) - "${field.title}"`);
+    schema.custom_object_fields.forEach((field) => {
       const th = document.createElement('th');
       th.textContent = field.title || field.key;
       th.dataset.fieldKey = field.key;
@@ -451,7 +431,6 @@ function checkHorizontalScroll() {
   
   if (hasScroll) {
     tableContainer.classList.add('has-scroll');
-    console.log(`   ℹ️ Tabela tem scroll horizontal (${table.scrollWidth}px > ${tableContainer.clientWidth}px)`);
   } else {
     tableContainer.classList.remove('has-scroll');
   }
@@ -575,8 +554,6 @@ async function handleSearch(event) {
   const searchTerm = event.target.value.toLowerCase().trim();
   const activeObject = appState.customObjects[appState.activeObjectIndex];
   
-  console.log(`🔍 Pesquisando por: "${searchTerm}"`);
-  
   // Atualiza o termo de pesquisa no estado
   appState.searchTerm = searchTerm;
   
@@ -584,7 +561,6 @@ async function handleSearch(event) {
   if (!searchTerm) {
     appState.filteredRecords[activeObject] = [];
     renderTable();
-    console.log(`   Pesquisa limpa, exibindo página atual`);
     return;
   }
   
@@ -597,8 +573,6 @@ async function handleSearch(event) {
     
     // Carrega TODOS os registros de todas as páginas
     const allRecords = await loadAllObjectRecords(activeObject);
-    
-    console.log(`   🔍 Pesquisando em ${allRecords.length} registros totais...`);
     
     // Filtra os registros
     const filtered = allRecords.filter(record => {
@@ -632,8 +606,6 @@ async function handleSearch(event) {
     
     // Armazena os registros filtrados
     appState.filteredRecords[activeObject] = filtered;
-    
-    console.log(`   ✅ Encontrados ${filtered.length} de ${allRecords.length} registros`);
     
     // Restaura o campo de busca
     searchInput.placeholder = originalPlaceholder;
@@ -733,13 +705,10 @@ function handleCellClick(cell, recordId, field) {
     // Compara o novo valor com o valor original (otimização!)
     // Evita chamadas desnecessárias à API se o valor não mudou
     if (valuesAreEqual(originalValue, newValue, field.type)) {
-      console.log(`   ⏭️ Valor não mudou, cancelando edição (campo: ${field.key})`);
       cell.classList.remove('editing');
       cell.textContent = currentValue;
       return;
     }
-    
-    console.log(`   🔄 Valor mudou! Original: ${JSON.stringify(originalValue)} → Novo: ${JSON.stringify(newValue)}`);
     
     // Salva o novo valor
     await saveFieldValue(recordId, field.key, newValue, cell, field);
@@ -896,8 +865,6 @@ function createInputForField(field, currentValue) {
           
           input.appendChild(opt);
         });
-      } else {
-        console.warn('Campo dropdown sem opções:', field.key);
       }
       break;
       
@@ -946,7 +913,6 @@ function createInputForField(field, currentValue) {
           input.appendChild(checkboxWrapper);
         });
       } else {
-        console.warn('Campo multiselect sem opções:', field.key);
         input.textContent = 'Sem opções disponíveis';
       }
       break;
@@ -1072,8 +1038,6 @@ function openCreateModal() {
     showToast('Erro: Schema não carregado', 'error');
     return;
   }
-  
-  console.log('➕ Abrindo modal para criar registro em', activeObject);
   
   // Limpa o formulário
   document.getElementById('record-name').value = '';
@@ -1290,8 +1254,6 @@ async function handleCreateRecord() {
     }
   };
   
-  console.log('💾 Criando novo registro:', payload);
-  
   try {
     // Desabilita o botão de salvar
     const saveButton = document.getElementById('save-create');
@@ -1305,8 +1267,6 @@ async function handleCreateRecord() {
       contentType: 'application/json',
       data: JSON.stringify(payload)
     });
-    
-    console.log('✅ Registro criado com sucesso:', response);
     
     // Fecha o modal
     closeCreateModal();
@@ -1336,8 +1296,6 @@ async function handleCreateRecord() {
  * Manipula o botão de atualizar
  */
 async function handleRefresh() {
-  console.log('🔄 Atualizando dados...');
-  
   const activeObject = appState.customObjects[appState.activeObjectIndex];
   
   // Limpa o cache de todos os registros para forçar recarregamento
@@ -1385,8 +1343,6 @@ async function loadObjectData(index, forceReload = false) {
   const objectName = appState.customObjects[index];
   
   try {
-    console.log(`📥 Carregando dados para ${objectName}...`);
-    
     // Se não temos o schema ou forçamos reload, busca o schema
     if (!appState.objectSchemas[objectName] || forceReload) {
       await loadObjectSchema(objectName);
@@ -1400,8 +1356,6 @@ async function loadObjectData(index, forceReload = false) {
     // Renderiza a tabela
     renderTable();
     
-    console.log(`✅ Dados carregados para ${objectName}`);
-    
   } catch (error) {
     console.error(`❌ Erro ao carregar dados de ${objectName}:`, error);
     showToast(`Erro ao carregar dados: ${error.message}`, 'error');
@@ -1414,23 +1368,17 @@ async function loadObjectData(index, forceReload = false) {
  */
 async function loadObjectSchema(objectName) {
   try {
-    console.log(`📋 Buscando schema para ${objectName}...`);
-    
     // Primeiro busca as informações do objeto
     const objectResponse = await appState.client.request({
       url: `/api/v2/custom_objects/${objectName}`,
       type: 'GET'
     });
     
-    console.log(`   Resposta do objeto:`, objectResponse);
-    
     // Agora busca os campos do objeto customizado
     const fieldsResponse = await appState.client.request({
       url: `/api/v2/custom_objects/${objectName}/fields`,
       type: 'GET'
     });
-    
-    console.log(`   Resposta dos campos:`, fieldsResponse);
     
     // Monta o schema combinando as informações
     const schema = objectResponse.custom_object || objectResponse;
@@ -1442,9 +1390,6 @@ async function loadObjectSchema(objectName) {
     
     // Armazena o schema no estado
     appState.objectSchemas[objectName] = schema;
-    
-    console.log(`✅ Schema completo carregado para ${objectName}:`, schema);
-    console.log(`   Total de campos: ${schema.custom_object_fields?.length || 0}`);
     
   } catch (error) {
     console.error(`❌ Erro ao buscar schema de ${objectName}:`, error);
@@ -1460,8 +1405,6 @@ async function loadObjectSchema(objectName) {
  */
 async function loadObjectRecords(objectName, cursor = null) {
   try {
-    console.log(`📦 Buscando registros para ${objectName}...`);
-    
     // Monta a URL com o cursor se fornecido
     let url = `/api/v2/custom_objects/${objectName}/records?page[size]=${appState.recordsPerPage}`;
     
@@ -1485,8 +1428,6 @@ async function loadObjectRecords(objectName, cursor = null) {
       appState.nextCursor = null;
     }
     
-    console.log(`✅ ${response.custom_object_records?.length || 0} registros carregados para ${objectName}`);
-    
   } catch (error) {
     console.error(`❌ Erro ao buscar registros de ${objectName}:`, error);
     throw new Error(`Não foi possível carregar os registros do objeto ${objectName}.`);
@@ -1501,11 +1442,8 @@ async function loadObjectRecords(objectName, cursor = null) {
  */
 async function loadAllObjectRecords(objectName) {
   try {
-    console.log(`🔍 Carregando TODOS os registros de ${objectName} para busca completa...`);
-    
     // Se já carregamos todos os registros antes, retorna do cache
     if (appState.allRecordsLoaded[objectName] && appState.allObjectRecords[objectName]) {
-      console.log(`   ✅ Usando cache: ${appState.allObjectRecords[objectName].length} registros`);
       return appState.allObjectRecords[objectName];
     }
     
@@ -1529,8 +1467,6 @@ async function loadAllObjectRecords(objectName) {
         url += `&page[after]=${cursor}`;
       }
       
-      console.log(`   📄 Carregando página ${pageCount}...`);
-      
       // Faz a requisição para a API do Zendesk
       const response = await appState.client.request({
         url: url,
@@ -1540,8 +1476,6 @@ async function loadAllObjectRecords(objectName) {
       // Adiciona os registros desta página ao array total
       const records = response.custom_object_records || [];
       allRecords = allRecords.concat(records);
-      
-      console.log(`      ✓ ${records.length} registros carregados (total: ${allRecords.length})`);
       
       // Verifica se há mais páginas
       if (response.meta && response.meta.has_more) {
@@ -1556,8 +1490,6 @@ async function loadAllObjectRecords(objectName) {
     appState.allObjectRecords[objectName] = allRecords;
     appState.allRecordsLoaded[objectName] = true;
     appState.isLoadingAllRecords = false;
-    
-    console.log(`✅ Total de ${allRecords.length} registros carregados de ${objectName} em ${pageCount} página(s)`);
     
     return allRecords;
     
@@ -1580,10 +1512,6 @@ async function saveFieldValue(recordId, fieldKey, newValue, cell, field) {
   const objectName = appState.customObjects[appState.activeObjectIndex];
   
   try {
-    console.log(`💾 Salvando campo ${fieldKey} do registro ${recordId}...`);
-    console.log(`   Valor anterior: ${cell.textContent}`);
-    console.log(`   Novo valor: ${newValue}`);
-    
     // Marca a célula como salvando
     cell.classList.remove('editing');
     cell.classList.add('saving');
@@ -1627,8 +1555,6 @@ async function saveFieldValue(recordId, fieldKey, newValue, cell, field) {
     if (recordIndex !== -1) {
       records[recordIndex].custom_object_fields[fieldKey] = newValue;
     }
-    
-    console.log(`✅ Campo ${fieldKey} salvo com sucesso!`);
     
     // Limpa o cache de todos os registros para garantir consistência em buscas futuras
     appState.allRecordsLoaded[objectName] = false;
@@ -1750,6 +1676,4 @@ function debounce(func, wait) {
 // ============================================
 // LOG FINAL
 // ============================================
-
-console.log('📄 app.js carregado com sucesso!');
 

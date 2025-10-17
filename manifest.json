@@ -13,19 +13,23 @@
         "size": {
           "width": "100%",
           "height": "600px"
-        }
+        },
+        "flexible": true
       }
     }
   },
   "version": "1.0.0",
   "frameworkVersion": "2.0",
+  "domainWhitelist": [
+    "https://static.zdassets.com"
+  ],
   "parameters": [
     {
       "name": "custom_objects_to_display",
       "type": "multiline",
       "secure": false,
       "required": true,
-      "default": "",
+      "default": "registro_csi",
       "helpText": "Insira os nomes (API names) dos Objetos Customizados que deseja exibir, separados por vírgula ou linha. Exemplo: object_a, object_b, object_c"
     },
     {

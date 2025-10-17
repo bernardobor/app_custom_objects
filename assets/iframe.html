@@ -4,7 +4,40 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Gerenciador de Objetos Customizados</title>
+  
+  <!-- Desabilita preload automático do Zendesk para evitar warnings -->
+  <meta http-equiv="x-dns-prefetch-control" content="off">
+  
+  <!-- Estilos da aplicação -->
   <link rel="stylesheet" href="styles.css">
+  
+  <!-- Pré-carrega o SDK do Zendesk de forma otimizada -->
+  <link rel="preload" href="https://static.zdassets.com/zendesk_app_framework_sdk/2.0/zaf_sdk.min.js" as="script" crossorigin>
+  
+  <!-- Script inline para prevenir warnings de preload -->
+  <script>
+    // Intercepta e remove preload links desnecessários antes que causem warnings
+    (function() {
+      const observer = new MutationObserver(mutations => {
+        mutations.forEach(mutation => {
+          mutation.addedNodes.forEach(node => {
+            if (node.tagName === 'LINK' && 
+                node.rel === 'preload' && 
+                node.href && 
+                (node.href.includes('embedded_lotus_overrides') || 
+                 node.href.includes('classic/assets'))) {
+              node.remove();
+            }
+          });
+        });
+      });
+      
+      // Observa mudanças no head
+      if (document.head) {
+        observer.observe(document.head, { childList: true });
+      }
+    })();
+  </script>
 </head>
 <body>
   <!-- Container Principal -->
@@ -118,8 +151,8 @@
 
   <!-- Scripts -->
   <!-- SDK do Zendesk App Framework - DEVE ser carregado primeiro -->
-  <script src="https://static.zdassets.com/zendesk_app_framework_sdk/2.0/zaf_sdk.min.js"></script>
+  <script src="https://static.zdassets.com/zendesk_app_framework_sdk/2.0/zaf_sdk.min.js" crossorigin="anonymous"></script>
   <!-- Script da aplicação -->
-  <script src="app.js"></script>
+  <script src="app.js" defer></script>
 </body>
 </html>
